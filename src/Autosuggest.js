@@ -92,18 +92,20 @@ export default class Autosuggest extends Component {
     multiSection: false,
     focusInputOnSuggestionClick: true,
     highlightFirstSuggestion: false,
+    highlightedSectionIndex: null,
+    highlightedSuggestionIndex: null,
     theme: defaultTheme,
     id: '1'
   };
 
-  constructor({ alwaysRenderSuggestions }) {
+  constructor({ alwaysRenderSuggestions, highlightedSectionIndex, highlightedSuggestionIndex }) {
     super();
 
     this.state = {
       isFocused: false,
       isCollapsed: !alwaysRenderSuggestions,
-      highlightedSectionIndex: null,
-      highlightedSuggestionIndex: null,
+      highlightedSectionIndex: highlightedSectionIndex,
+      highlightedSuggestionIndex: highlightedSuggestionIndex,
       valueBeforeUpDown: null
     };
 
@@ -118,6 +120,18 @@ export default class Autosuggest extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    if (
+      !(
+        nextProps.highlightedSuggestionIndex === this.state.highlightedSuggestionIndex &&
+        nextProps.highlightedSectionIndex === this.state.highlightedSectionIndex
+      )
+    ) {
+      this.setState({
+        highlightedSuggestionIndex: nextProps.highlightedSuggestionIndex,
+        highlightedSectionIndex: nextProps.highlightedSectionIndex,
+      });
+    }
+
     if (shallowEqualArrays(nextProps.suggestions, this.props.suggestions)) {
       if (
         nextProps.highlightFirstSuggestion &&
@@ -317,10 +331,6 @@ export default class Autosuggest extends Component {
     }
   };
 
-  onSuggestionMouseEnter = (event, { sectionIndex, itemIndex }) => {
-    this.updateHighlightedSuggestion(sectionIndex, itemIndex);
-  };
-
   highlightFirstSuggestion = () => {
     this.updateHighlightedSuggestion(this.props.multiSection ? 0 : null, 0);
   };
@@ -366,14 +376,15 @@ export default class Autosuggest extends Component {
       clickedSuggestion
     );
 
-    this.maybeCallOnChange(event, clickedSuggestionValue, 'click');
-    this.onSuggestionSelected(event, {
-      suggestion: clickedSuggestion,
-      suggestionValue: clickedSuggestionValue,
-      suggestionIndex: suggestionIndex,
-      sectionIndex,
-      method: 'click'
-    });
+    // this.maybeCallOnChange(event, clickedSuggestionValue, 'click');
+    // this.onSuggestionSelected(event, {
+    //   suggestion: clickedSuggestion,
+    //   suggestionValue: clickedSuggestionValue,
+    //   suggestionIndex: suggestionIndex,
+    //   sectionIndex,
+    //   method: 'click'
+    // });
+    this.updateHighlightedSuggestion(sectionIndex, suggestionIndex);
 
     if (!alwaysRenderSuggestions) {
       this.closeSuggestions();
@@ -398,25 +409,16 @@ export default class Autosuggest extends Component {
 
     this.setState({
       isFocused: false,
-      highlightedSectionIndex: null,
-      highlightedSuggestionIndex: null,
-      valueBeforeUpDown: null,
       isCollapsed: !shouldRender
     });
 
     onBlur && onBlur(this.blurEvent, { highlightedSuggestion });
   };
 
-  resetHighlightedSuggestionOnMouseLeave = () => {
-    this.resetHighlightedSuggestion(false); // shouldResetValueBeforeUpDown
-  };
-
   itemProps = ({ sectionIndex, itemIndex }) => {
     return {
       'data-section-index': sectionIndex,
       'data-suggestion-index': itemIndex,
-      onMouseEnter: this.onSuggestionMouseEnter,
-      onMouseLeave: this.resetHighlightedSuggestionOnMouseLeave,
       onMouseDown: this.onSuggestionMouseDown,
       onTouchStart: this.onSuggestionMouseDown, // Because on iOS `onMouseDown` is not triggered
       onClick: this.onSuggestionClick
