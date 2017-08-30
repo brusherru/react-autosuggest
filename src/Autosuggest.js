@@ -121,7 +121,7 @@ export default class Autosuggest extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (
-      nextProps.highlightedSuggestionIndex !== this.props.highlightFirstSuggestion &&
+      nextProps.highlightedSuggestionIndex !== this.props.highlightedSuggestionIndex &&
       nextProps.highlightedSectionIndex !== this.props.highlightedSectionIndex &&
       !(
         nextProps.highlightedSuggestionIndex === this.state.highlightedSuggestionIndex &&
