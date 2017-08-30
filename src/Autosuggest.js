@@ -132,13 +132,15 @@ export default class Autosuggest extends Component {
         highlightedSuggestionIndex: nextProps.highlightedSuggestionIndex,
         highlightedSectionIndex: nextProps.highlightedSectionIndex,
       });
+      return;
     }
 
     if (shallowEqualArrays(nextProps.suggestions, this.props.suggestions)) {
       if (
         nextProps.highlightFirstSuggestion &&
         nextProps.suggestions.length > 0 &&
-        this.justPressedUpDown === false
+        this.justPressedUpDown === false &&
+        this.justSelectedSuggestion === false
       ) {
         this.highlightFirstSuggestion();
       }
@@ -372,10 +374,6 @@ export default class Autosuggest extends Component {
     const { alwaysRenderSuggestions, focusInputOnSuggestionClick } = this.props;
     const { sectionIndex, suggestionIndex } = this.getSuggestionIndices(
       this.findSuggestionElement(event.target)
-    );
-    const clickedSuggestion = this.getSuggestion(sectionIndex, suggestionIndex);
-    const clickedSuggestionValue = this.props.getSuggestionValue(
-      clickedSuggestion
     );
 
     this.updateHighlightedSuggestion(sectionIndex, suggestionIndex);
