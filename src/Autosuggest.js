@@ -121,6 +121,8 @@ export default class Autosuggest extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (
+      nextProps.highlightedSuggestionIndex !== this.props.highlightFirstSuggestion &&
+      nextProps.highlightedSectionIndex !== this.props.highlightedSectionIndex &&
       !(
         nextProps.highlightedSuggestionIndex === this.state.highlightedSuggestionIndex &&
         nextProps.highlightedSectionIndex === this.state.highlightedSectionIndex
@@ -376,15 +378,37 @@ export default class Autosuggest extends Component {
       clickedSuggestion
     );
 
-    // this.maybeCallOnChange(event, clickedSuggestionValue, 'click');
-    // this.onSuggestionSelected(event, {
-    //   suggestion: clickedSuggestion,
-    //   suggestionValue: clickedSuggestionValue,
-    //   suggestionIndex: suggestionIndex,
-    //   sectionIndex,
-    //   method: 'click'
-    // });
     this.updateHighlightedSuggestion(sectionIndex, suggestionIndex);
+
+    if (focusInputOnSuggestionClick === true) {
+      this.input.focus();
+    } else {
+      this.onBlur();
+    }
+
+    setTimeout(() => {
+      this.justSelectedSuggestion = false;
+    });
+  };
+
+  onSuggestionDoubleClick = event => {
+    const { alwaysRenderSuggestions, focusInputOnSuggestionClick } = this.props;
+    const { sectionIndex, suggestionIndex } = this.getSuggestionIndices(
+      this.findSuggestionElement(event.target)
+    );
+    const clickedSuggestion = this.getSuggestion(sectionIndex, suggestionIndex);
+    const clickedSuggestionValue = this.props.getSuggestionValue(
+      clickedSuggestion
+    );
+
+    this.maybeCallOnChange(event, clickedSuggestionValue, 'click');
+    this.onSuggestionSelected(event, {
+      suggestion: clickedSuggestion,
+      suggestionValue: clickedSuggestionValue,
+      suggestionIndex: suggestionIndex,
+      sectionIndex,
+      method: 'doubleClick'
+    });
 
     if (!alwaysRenderSuggestions) {
       this.closeSuggestions();
@@ -421,7 +445,8 @@ export default class Autosuggest extends Component {
       'data-suggestion-index': itemIndex,
       onMouseDown: this.onSuggestionMouseDown,
       onTouchStart: this.onSuggestionMouseDown, // Because on iOS `onMouseDown` is not triggered
-      onClick: this.onSuggestionClick
+      onClick: this.onSuggestionClick,
+      onDoubleClick: this.onSuggestionDoubleClick,
     };
   };
 
