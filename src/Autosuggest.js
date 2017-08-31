@@ -160,21 +160,23 @@ export default class Autosuggest extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { onSuggestionHighlighted } = this.props;
+    const { onSuggestionHighlighted, suggestions } = this.props;
 
     if (!onSuggestionHighlighted) {
       return;
     }
 
     const { highlightedSectionIndex, highlightedSuggestionIndex } = this.state;
+    const { highlightedSectionIndex: prevHighlightedSectionIndex, highlightedSuggestionIndex: prevhighlightedSuggestionIndex } = prevState;
+    const prevSuggestion = this.getSuggestion(prevHighlightedSectionIndex, prevhighlightedSuggestionIndex, prevProps.suggestions);
+    const nextSuggestion = this.getSuggestion(highlightedSectionIndex, highlightedSuggestionIndex, suggestions);
 
     if (
       highlightedSectionIndex !== prevState.highlightedSectionIndex ||
-      highlightedSuggestionIndex !== prevState.highlightedSuggestionIndex
+      highlightedSuggestionIndex !== prevState.highlightedSuggestionIndex ||
+      prevSuggestion !== nextSuggestion
     ) {
-      const suggestion = this.getHighlightedSuggestion();
-
-      onSuggestionHighlighted({ suggestion });
+      onSuggestionHighlighted({ suggestion: nextSuggestion });
     }
   }
 
@@ -232,14 +234,15 @@ export default class Autosuggest extends Component {
     });
   }
 
-  getSuggestion(sectionIndex, suggestionIndex) {
+  getSuggestion(sectionIndex, suggestionIndex, pSuggestions) {
     const { suggestions, multiSection, getSectionSuggestions } = this.props;
+    const curSuggestions = pSuggestions || suggestions;
 
     if (multiSection) {
-      return getSectionSuggestions(suggestions[sectionIndex])[suggestionIndex];
+      return getSectionSuggestions(curSuggestions[sectionIndex])[suggestionIndex];
     }
 
-    return suggestions[suggestionIndex];
+    return curSuggestions[suggestionIndex];
   }
 
   getHighlightedSuggestion() {
