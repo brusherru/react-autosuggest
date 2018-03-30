@@ -9,7 +9,6 @@
   },
   "author": "Misha Moroshko <michael.moroshko@gmail.com>",
   "scripts": {
-    "postinstall": "npm run dist",
     "start": "mkdir -p demo/dist && npm run copy-static-files && node server",
     "prettier": "prettier --single-quote --write \".*.js\" \"*.js\" \"demo/src/**/*.js\" \"demo/standalone/app.js\" \"src/**/*.js\" \"test/**/*.js\"",
     "lint": "eslint src test demo/src demo/standalone/app.js server.js webpack.*.js",
